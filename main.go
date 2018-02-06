@@ -60,7 +60,18 @@ func getLatestVersion() (semver.Version, string) {
 			panic("Could not find attribute href!")
 		}
 
-		latestVersion, err = semver.Make(s.Text())
+		versionString := s.Text()
+		numDots := 0
+		for _, c := range versionString {
+			if c == '.' {
+				numDots += 1
+			}
+		}
+		for numDots < 2 {
+			versionString += ".0"
+			numDots++
+		}
+		latestVersion, err = semver.Make(versionString)
 		if err != nil {
 			panic(err)
 		}
@@ -97,7 +108,7 @@ func extractNewVersion(url string) {
 }
 
 func replaceSourceDirectory(newVersion semver.Version) {
-	name := "linux-" + newVersion.String()
+	name := "linux-" + strings.TrimSuffix(newVersion.String(), ".0")
 
 	run("mv", "linux/.git", "linux/.config", name)
 	run("trash-put", "-r", "linux")

@@ -69,7 +69,7 @@ func getLatestVersion() (semver.Version, string) {
 }
 
 func backupConfig() {
-	run("mv", ".config", os.ExpandEnv("$HOME/prj/linux_config/config"))
+	run("cp", ".config", os.ExpandEnv("$HOME/prj/linux_config/config"))
 }
 
 // Download and extract the new sources

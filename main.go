@@ -85,11 +85,8 @@ func backupConfig() {
 
 // Download and extract the new sources
 func extractNewVersion(url string) {
-	if err := os.Chdir(".."); err != nil {
-		panic(err)
-	}
 	curl := exec.Command("curl", "-s", url)
-	tar := exec.Command("tar", "xhJ")
+	tar := exec.Command("tar", "xhJ", "--strip-components=1")
 
 	var err error
 	tar.Stdin, err = curl.StdoutPipe()
@@ -103,17 +100,6 @@ func extractNewVersion(url string) {
 		panic(err)
 	}
 	if err = tar.Wait(); err != nil {
-		panic(err)
-	}
-}
-
-func replaceSourceDirectory(newVersion semver.Version) {
-	name := "linux-" + strings.TrimSuffix(newVersion.String(), ".0")
-
-	run("mv", "linux/.git", "linux/.config", name)
-	run("trash-put", "-r", "linux")
-	run("mv", name, "linux")
-	if err := os.Chdir("linux"); err != nil {
 		panic(err)
 	}
 }
@@ -135,9 +121,6 @@ func main() {
 
 		log.Println("Downloading the latest version")
 		extractNewVersion(url)
-
-		log.Println("Replacing the source directory with the latest version")
-		replaceSourceDirectory(latestVersion)
 
 		log.Println("Adding files to version control")
 		updateGitRepo(latestVersion)
